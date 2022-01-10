@@ -1,7 +1,5 @@
 const http = require('http');
 const fs = require('fs');
-const express = require('express');
-const plotly = require('plotly')("klarrieu", "hVvFF1QIuLld8fJ8Kmkr");
 const sqlite3 = require('sqlite3').verbose();
 
 
