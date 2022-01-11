@@ -3,7 +3,9 @@
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 <title>⛅  Speckled Weather Station</title>
+<link rel='icon' type='image/jpg', href=''>
 <body>
+
 
 <h2>Current Conditions:</h2>
 <h3 id="air_temp_text"></h3>
@@ -68,7 +70,7 @@ function init_plots(){
   var layout = {
     title:'Air Temperature [°C]'
   };
-  Plotly.plot('air_temp_graph', [{
+  Plotly.newPlot('air_temp_graph', [{
     x: weather_data.tss,
     y: weather_data.air_temps,
     mode: 'lines',
@@ -79,7 +81,7 @@ function init_plots(){
   var layout = {
     title:'Air Pressure [hPa]'
   };
-  Plotly.plot('air_pressure_graph', [{
+  Plotly.newPlot('air_pressure_graph', [{
     x: weather_data.tss,
     y: weather_data.air_pressures,
     mode: 'lines',
@@ -90,7 +92,7 @@ function init_plots(){
   var layout = {
     title:'Relative Humidity [%]'
   };
-  Plotly.plot('humidity_graph', [{
+  Plotly.newPlot('humidity_graph', [{
     x: weather_data.tss,
     y: weather_data.humidities,
     mode: 'lines',
@@ -101,7 +103,7 @@ function init_plots(){
   var layout = {
     title:'Air Quality Index'
   };
-  Plotly.plot('aqi_graph', [{
+  Plotly.newPlot('aqi_graph', [{
     x: weather_data.tss,
     y: weather_data.aqis,
     mode: 'lines',
@@ -112,7 +114,7 @@ function init_plots(){
   var layout = {
     title:'PM<sub>2.5</sub> [μg/m<sup>3</sup>]'
   };
-  Plotly.plot('pm2_5_graph', [{
+  Plotly.newPlot('pm2_5_graph', [{
     x: weather_data.tss,
     y: weather_data.pm2_5s,
     mode: 'lines',
@@ -123,7 +125,7 @@ function init_plots(){
   var layout = {
     title:'PM<sub>10</sub> [μg/m<sup>3</sup>]'
   };
-  Plotly.plot('pm10_graph', [{
+  Plotly.newPlot('pm10_graph', [{
     x: weather_data.tss,
     y: weather_data.pm10s,
     mode: 'lines',
