@@ -7,14 +7,34 @@
 <body>
 
 
+<h2>⛅  Welcome to the Speckled Weather Station! ⛅</h2>
 <h2>Current Conditions:</h2>
+<button id="button">Change Units</button>
 <h3 id="air_temp_text"></h3>
 <h3 id="air_pressure_text"></h3>
 <h3 id="humidity_text"></h3>
 <h3 id="aqi_text"></h3>
 <h3 id="pm2_5_text"></h3>
 <h3 id="pm10_text"></h3>
-<p id="ts_text" style="color:#808080; font-size:12"></p>
+<p id="ts_text" style="color:#808080; font-size:14"></p>
+
+<script>
+var temp_unit = "C";
+
+function c_to_f(temp){
+  return +(9/5 * temp + 32).toFixed(2);
+};
+
+function change_units(){
+  if (temp_unit == "C"){temp_unit = "F"}
+  else{temp_unit = "C"};
+  init_text();
+  init_plots();
+};
+
+var button = document.getElementById("button");
+button.addEventListener("click", function(){change_units();});
+</script>
 
 <script>
 var current_ts = 0;
@@ -25,36 +45,37 @@ var current_aqi = 0;
 var current_pm2_5 = 0;
 var current_pm10 = 0;
 
-function write_text(){
-  document.getElementById("air_temp_text").innerHTML = `T: ${current_air_temp} °C`;
-  document.getElementById("air_pressure_text").innerHTML = `p: ${current_air_pressure} hPa`;
-  document.getElementById("humidity_text").innerHTML = `RH: ${current_humidity}%`;
-  document.getElementById("aqi_text").innerHTML = `AQI: ${current_aqi}`;
-  document.getElementById("pm2_5_text").innerHTML = `PM<sub>2.5</sub>: ${current_pm2_5} μg/m<sup>3</sup>`;
-  document.getElementById("pm10_text").innerHTML = `PM<sub>10</sub>: ${current_pm10} μg/m<sup>3</sup>`;
-  document.getElementById("ts_text").innerHTML = `Last updated: ${current_ts}`;
-};
-
-function init_text(){
-  current_ts = weather_data.tss.slice(-1)[0];
-  current_air_temp = weather_data.air_temps.slice(-1)[0];
-  current_air_pressure = weather_data.air_pressures.slice(-1)[0];
-  current_humidity = weather_data.humidities.slice(-1)[0];
-  current_aqi = weather_data.aqis.slice(-1)[0];
-  current_pm2_5 = weather_data.pm2_5s.slice(-1)[0];
-  current_pm10 = weather_data.pm10s.slice(-1)[0];
-  write_text();
-};
-
-function update_text(){
+function get_current_values(){
   current_ts = weather_update[0].ts;
   current_air_temp = weather_update[0].air_temp;
+  if (temp_unit == "F") {current_air_temp = c_to_f(current_air_temp)};
   current_air_pressure = weather_update[0].air_pressure;
   current_humidity = weather_update[0].humidity;
   current_aqi = weather_update[0].aqi;
   current_pm2_5 = weather_update[0].pm2_5;
   current_pm10 = weather_update[0].pm10;
-  write_text();
+};
+
+function init_text(){
+  current_ts = weather_data.tss.slice(-1)[0];
+  current_air_temp = weather_data.air_temps.slice(-1)[0];
+  if (temp_unit == "F") {current_air_temp = c_to_f(current_air_temp)};
+  current_air_pressure = weather_data.air_pressures.slice(-1)[0];
+  current_humidity = weather_data.humidities.slice(-1)[0];
+  current_aqi = weather_data.aqis.slice(-1)[0];
+  current_pm2_5 = weather_data.pm2_5s.slice(-1)[0];
+  current_pm10 = weather_data.pm10s.slice(-1)[0];
+  update_text();
+};
+
+function update_text(){
+  document.getElementById("air_temp_text").innerHTML = `🌡️T: ${current_air_temp} °${temp_unit}`;
+  document.getElementById("air_pressure_text").innerHTML = `🌪️p: ${current_air_pressure} hPa`;
+  document.getElementById("humidity_text").innerHTML = `🌫️RH: ${current_humidity}%`;
+  document.getElementById("aqi_text").innerHTML = `💨AQI: ${current_aqi}`;
+  document.getElementById("pm2_5_text").innerHTML = `💨PM<sub>2.5</sub>: ${current_pm2_5} μg/m<sup>3</sup>`;
+  document.getElementById("pm10_text").innerHTML = `💨PM<sub>10</sub>: ${current_pm10} μg/m<sup>3</sup>`;
+  document.getElementById("ts_text").innerHTML = `Last updated: ${current_ts}`;
 };
 </script>
 
@@ -68,11 +89,13 @@ function update_text(){
 <script>
 function init_plots(){
   var layout = {
-    title:'Air Temperature [°C]'
+    title:`Air Temperature [°${temp_unit}]`
   };
+  var y = weather_data.air_temps
+  if (temp_unit == "F") {y = weather_data.air_temps.map(t => c_to_f(t))};
   Plotly.newPlot('air_temp_graph', [{
     x: weather_data.tss,
-    y: weather_data.air_temps,
+    y: y,
     mode: 'lines',
     line: {color: '#80CAF6'}
     }],
@@ -140,33 +163,33 @@ function init_plots(){
 function update_plots(){
   if (weather_update.length > 0){
     var air_temp_update = {
-      x: [[weather_update[0].ts]],
-      y: [[weather_update[0].air_temp]]
+      x: [[current_ts]],
+      y: [[current_air_temp]]
     };
     Plotly.extendTraces('air_temp_graph', air_temp_update, [0]);
     var air_pressure_update = {
-      x: [[weather_update[0].ts]],
-      y: [[weather_update[0].air_pressure]]
+      x: [[current_ts]],
+      y: [[current_air_pressure]]
     };
     Plotly.extendTraces('air_pressure_graph', air_pressure_update, [0]);
     var humidity_update = {
-      x: [[weather_update[0].ts]],
-      y: [[weather_update[0].humidity]]
+      x: [[current_ts]],
+      y: [[current_humidity]]
     };
     Plotly.extendTraces('humidity_graph', humidity_update, [0]);
     var aqi_update = {
-      x: [[weather_update[0].ts]],
-      y: [[weather_update[0].aqi]]
+      x: [[current_ts]],
+      y: [[current_aqi]]
     };
     Plotly.extendTraces('aqi_graph', aqi_update, [0]);
     var pm2_5_update = {
-      x: [[weather_update[0].ts]],
-      y: [[weather_update[0].pm2_5]]
+      x: [[current_ts]],
+      y: [[current_pm2_5]]
     };
     Plotly.extendTraces('pm2_5_graph', pm2_5_update, [0]);
     var pm10_update = {
-      x: [[weather_update[0].ts]],
-      y: [[weather_update[0].pm10]]
+      x: [[current_ts]],
+      y: [[current_pm10]]
     };
     Plotly.extendTraces('pm10_graph', pm10_update, [0]);
   };
@@ -191,6 +214,7 @@ socket.on('data', function(data) {
 socket.on('update', function(update){
   console.log('Got update:', update.update);
   weather_update = update.update;
+  get_current_values();
   update_text();
   update_plots();
 });
