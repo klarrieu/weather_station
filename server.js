@@ -12,7 +12,7 @@ let db = new sqlite3.Database('/home/pi/Documents/weather_station/weather.db', s
 });
 
 // get data from database
-var sql = `SELECT ts as ts, air_temp as air_temp, air_pressure as air_pressure, humidity as humidity, aqi as aqi, pm2_5 as pm2_5, pm10 as pm10 FROM weather;`;
+var sql = `SELECT ts as ts, air_temp as air_temp, air_pressure as air_pressure, humidity as humidity, aqi as aqi, pm2_5 as pm2_5, pm10 as pm10 FROM weather WHERE ts >= datetime(CURRENT_TIMESTAMP, 'localtime', '-1 day');`;
 
 var tss = [];
 var air_temps = [];
@@ -26,25 +26,20 @@ var update = [];
 
 var records = [];
 
-function update_data(){
+
+function init_data(){
   return new Promise(resolve=>{
-    update = [];
-    if (tss.length > 0){
-    // console.log('checking for update, last ts:', tss.slice(-1)[0]);
-    sql = `SELECT ts as ts, air_temp as air_temp, air_pressure as air_pressure, humidity as humidity, aqi as aqi, pm2_5 as pm2_5, pm10 as pm10 FROM weather WHERE ts > \'${tss.slice(-1)[0]}\';`;
-    }
+    tss = [];
+    air_temps = [];
+    air_pressures = [];
+    humidities = [];
+    aqis = [];
+    pm2_5s = [];
+    pm10s = [];
     db.all(sql, [], (err, rows) => {
       if (err) {
         throw err;
       }
-      // get new data to send as update
-      if (tss.length > 0){
-        rows.forEach((row) => {
-          // console.log(row.ts, row.air_temp, row.air_pressure, row.humidity, row.aqi, row.pm2_5, row.pm10);
-          update.push(row);
-        });
-      }
-      // create/update arrays for each variable
       rows.forEach((row) => {
         // console.log(row.ts, row.air_temp, row.air_pressure, row.humidity, row.aqi, row.pm2_5, row.pm10);
         tss.push(row.ts);
@@ -55,17 +50,35 @@ function update_data(){
         pm2_5s.push(row.pm2_5);
         pm10s.push(row.pm10);
       });
-      resolve(tss, air_temps, air_pressures, humidities, aqis, pm2_5s, pm10s, update);
+      resolve(tss, air_temps, air_pressures, humidities, aqis, pm2_5s, pm10s);
     });
-    //db.close();
   });
 }
 
-// get initial set of data
-async function getData(){
-  records = await update_data();
-};
-getData();
+var latest_ts;
+var sql_update;
+
+function update_data(){
+  return new Promise(resolve=>{
+    if (update.length > 0){latest_ts = update.slice(-1)[0].ts};
+    update = [];
+    console.log('checking for update, last ts:', latest_ts);
+    sql_update = `SELECT ts as ts, air_temp as air_temp, air_pressure as air_pressure, humidity as humidity, aqi as aqi, pm2_5 as pm2_5, pm10 as pm10 FROM weather WHERE ts > \'${latest_ts}\';`;
+    db.all(sql_update, [], (err, rows) => {
+      if (err) {
+        throw err;
+      }
+      // get new data to send as update
+      if (tss.length > 0){
+        rows.forEach((row) => {
+          // console.log(row.ts, row.air_temp, row.air_pressure, row.humidity, row.aqi, row.pm2_5, row.pm10);
+          update.push(row);
+        });
+      }
+      resolve(update);
+    });
+  });
+}
 
 
 // create http server
@@ -79,15 +92,22 @@ const io = require('socket.io')(server);
 io.on('connection', client => {
   console.log("websocket on...");
   client.emit('announcements', { message: 'Hello from the server!' });
+
   // send database data to webpage via websocket
-  client.emit('data', {tss: tss,
-                       air_temps: air_temps,
-                       air_pressures: air_pressures,
-                       humidities: humidities,
-                       aqis: aqis,
-                       pm2_5s: pm2_5s,
-                       pm10s: pm10s
-                      });
+  async function asyncInit(){
+    records = await init_data();
+    client.emit('data', {tss: tss,
+                         air_temps: air_temps,
+                         air_pressures: air_pressures,
+                         humidities: humidities,
+                         aqis: aqis,
+                         pm2_5s: pm2_5s,
+                         pm10s: pm10s
+                        });
+    latest_ts = tss.slice(-1)[0];
+  };
+  asyncInit();
+
   // periodically retrieve new data and send to webpage
   setInterval(() => {
     async function asyncUpdate(){
@@ -95,7 +115,7 @@ io.on('connection', client => {
       if (update.length > 0){
         console.log('got new data:', update);
         io.sockets.emit('update', {update: update})
-      };
+      }
     };
     asyncUpdate();
     }, 20 * 1000);

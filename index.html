@@ -46,14 +46,14 @@ var current_pm2_5 = 0;
 var current_pm10 = 0;
 
 function get_current_values(){
-  current_ts = weather_update[0].ts;
-  current_air_temp = weather_update[0].air_temp;
+  current_ts = weather_update.slice(-1)[0].ts;
+  current_air_temp = weather_update.slice(-1)[0].air_temp;
   if (temp_unit == "F") {current_air_temp = c_to_f(current_air_temp)};
-  current_air_pressure = weather_update[0].air_pressure;
-  current_humidity = weather_update[0].humidity;
-  current_aqi = weather_update[0].aqi;
-  current_pm2_5 = weather_update[0].pm2_5;
-  current_pm10 = weather_update[0].pm10;
+  current_air_pressure = weather_update.slice(-1)[0].air_pressure;
+  current_humidity = weather_update.slice(-1)[0].humidity;
+  current_aqi = weather_update.slice(-1)[0].aqi;
+  current_pm2_5 = weather_update.slice(-1)[0].pm2_5;
+  current_pm10 = weather_update.slice(-1)[0].pm10;
 };
 
 function init_text(){
@@ -88,6 +88,7 @@ function update_text(){
 
 <script>
 function init_plots(){
+  var config = {responsive: true};
   var layout = {
     title:`Air Temperature [°${temp_unit}]`
   };
@@ -99,7 +100,7 @@ function init_plots(){
     mode: 'lines',
     line: {color: '#80CAF6'}
     }],
-    layout
+    layout, config
   );
   var layout = {
     title:'Air Pressure [hPa]'
@@ -110,7 +111,7 @@ function init_plots(){
     mode: 'lines',
     line: {color: '#80CAF6'}
     }],
-    layout
+    layout, config
   );
   var layout = {
     title:'Relative Humidity [%]'
@@ -121,7 +122,7 @@ function init_plots(){
     mode: 'lines',
     line: {color: '#80CAF6'}
     }],
-    layout
+    layout, config
   );
   var layout = {
     title:'Air Quality Index'
@@ -132,7 +133,7 @@ function init_plots(){
     mode: 'lines',
     line: {color: '#80CAF6'}
     }],
-    layout
+    layout, config
   );
   var layout = {
     title:'PM<sub>2.5</sub> [μg/m<sup>3</sup>]'
@@ -143,7 +144,7 @@ function init_plots(){
     mode: 'lines',
     line: {color: '#80CAF6'}
     }],
-    layout
+    layout, config
   );
   var layout = {
     title:'PM<sub>10</sub> [μg/m<sup>3</sup>]'
@@ -154,7 +155,7 @@ function init_plots(){
     mode: 'lines',
     line: {color: '#80CAF6'}
     }],
-    layout
+    layout, config
   );
 };
 </script>
