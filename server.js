@@ -22,7 +22,7 @@ var aqis = [];
 var pm2_5s = [];
 var pm10s = [];
 
-var update = [];
+var update = {};
 
 var records = [];
 
@@ -60,8 +60,8 @@ var sql_update;
 
 function update_data(){
   return new Promise(resolve=>{
-    if (update.length > 0){latest_ts = update.slice(-1)[0].ts};
-    update = [];
+    if (Object.keys(update).length > 0){latest_ts = update.ts};
+    update = {};
     console.log('checking for update, last ts:', latest_ts);
     sql_update = `SELECT ts as ts, air_temp as air_temp, air_pressure as air_pressure, humidity as humidity, aqi as aqi, pm2_5 as pm2_5, pm10 as pm10 FROM weather WHERE ts > \'${latest_ts}\';`;
     db.all(sql_update, [], (err, rows) => {
@@ -72,7 +72,7 @@ function update_data(){
       if (tss.length > 0){
         rows.forEach((row) => {
           // console.log(row.ts, row.air_temp, row.air_pressure, row.humidity, row.aqi, row.pm2_5, row.pm10);
-          update.push(row);
+          update = {...row};
         });
       }
       resolve(update);
@@ -104,28 +104,34 @@ io.on('connection', client => {
                          pm2_5s: pm2_5s,
                          pm10s: pm10s
                         });
-    latest_ts = tss.slice(-1)[0];
   };
   asyncInit();
 
-  // periodically retrieve new data and send to webpage
-  setInterval(() => {
-    async function asyncUpdate(){
-      records = await update_data();
-      if (update.length > 0){
-        console.log('got new data:', update);
-        io.sockets.emit('update', {update: update})
-      }
-    };
-    asyncUpdate();
-    }, 20 * 1000);
   client.on('event', data => {console.log("received data: ${data}")
   });
   client.on('disconnect', () => {console.log("websocket disconnected.")
   });
 });
 
+// initialize latest_ts when server turns on
+async function server_ts_init(){
+  records = await init_data();
+  latest_ts = tss.slice(-1)[0];
+};
+server_ts_init();
+
+// periodically retrieve new data and send to clients
+setInterval(() => {
+  async function asyncUpdate(){
+    records = await update_data();
+    if (Object.keys(update).length > 0){
+      console.log('got new data:', update);
+      io.sockets.emit('update', {update: update})
+    }
+  };
+  asyncUpdate();
+  }, 20 * 1000);
+
 // start listening
 server.listen(8000);
 console.log("Listening on port 8000");
-

@@ -46,14 +46,14 @@ var current_pm2_5 = 0;
 var current_pm10 = 0;
 
 function get_current_values(){
-  current_ts = weather_update.slice(-1)[0].ts;
-  current_air_temp = weather_update.slice(-1)[0].air_temp;
+  current_ts = weather_update.ts;
+  current_air_temp = weather_update.air_temp;
   if (temp_unit == "F") {current_air_temp = c_to_f(current_air_temp)};
-  current_air_pressure = weather_update.slice(-1)[0].air_pressure;
-  current_humidity = weather_update.slice(-1)[0].humidity;
-  current_aqi = weather_update.slice(-1)[0].aqi;
-  current_pm2_5 = weather_update.slice(-1)[0].pm2_5;
-  current_pm10 = weather_update.slice(-1)[0].pm10;
+  current_air_pressure = weather_update.air_pressure;
+  current_humidity = weather_update.humidity;
+  current_aqi = weather_update.aqi;
+  current_pm2_5 = weather_update.pm2_5;
+  current_pm10 = weather_update.pm10;
 };
 
 function init_text(){
