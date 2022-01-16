@@ -1,5 +1,6 @@
 from bme280 import get_bme280_data
 from sds011 import get_sds011_data
+from correct_temp import correct_temp
 from manage_db import setup_db, add_entry
 import time
 from numpy import mean
@@ -18,9 +19,11 @@ pm10s = []
 t1 = time.time()
 
 while True:
-  # get a sensor reading
+  # get sensor readings
   air_temp, air_pressure, humidity = get_bme280_data()
   aqi, pm2_5, pm10 = get_sds011_data()
+  # correct air temp accounting for heat from pi CPU
+  air_temp = correct_temp(air_temp)
   # add values to arrays
   air_temps.append(air_temp)
   air_pressures.append(air_pressure)
