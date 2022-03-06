@@ -47,13 +47,20 @@ var current_pm10 = 0;
 
 function get_current_values(){
   current_ts = weather_update.ts;
+  weather_data.tss = weather_data.tss.concat(current_ts);
   current_air_temp = weather_update.air_temp;
+  weather_data.air_temps = weather_data.air_temps.concat(current_air_temp);
   if (temp_unit == "F") {current_air_temp = c_to_f(current_air_temp)};
   current_air_pressure = weather_update.air_pressure;
+  weather_data.air_pressures = weather_data.air_pressures.concat(current_air_pressure);
   current_humidity = weather_update.humidity;
+  weather_data.humidities = weather_data.humidities.concat(current_humidity);
   current_aqi = weather_update.aqi;
+  weather_data.aqis = weather_data.aqis.concat(current_aqi);
   current_pm2_5 = weather_update.pm2_5;
+  weather_data.pm2_5s = weather_data.pm2_5s.concat(current_pm2_5);
   current_pm10 = weather_update.pm10;
+  weather_data.pm10s = weather_data.pm10s.concat(current_pm10);
 };
 
 function init_text(){
@@ -98,7 +105,8 @@ function init_plots(){
     x: weather_data.tss,
     y: y,
     mode: 'lines',
-    line: {color: '#80CAF6'}
+    line: {color: '#80CAF6',
+           shape: 'spline'}
     }],
     layout, config
   );
@@ -109,7 +117,8 @@ function init_plots(){
     x: weather_data.tss,
     y: weather_data.air_pressures,
     mode: 'lines',
-    line: {color: '#80CAF6'}
+    line: {color: '#80CAF6',
+           shape: 'spline'}
     }],
     layout, config
   );
@@ -120,7 +129,8 @@ function init_plots(){
     x: weather_data.tss,
     y: weather_data.humidities,
     mode: 'lines',
-    line: {color: '#80CAF6'}
+    line: {color: '#80CAF6',
+           shape: 'spline'}
     }],
     layout, config
   );
@@ -131,7 +141,8 @@ function init_plots(){
     x: weather_data.tss,
     y: weather_data.aqis,
     mode: 'lines',
-    line: {color: '#80CAF6'}
+    line: {color: '#80CAF6',
+           shape: 'spline'}
     }],
     layout, config
   );
@@ -142,7 +153,8 @@ function init_plots(){
     x: weather_data.tss,
     y: weather_data.pm2_5s,
     mode: 'lines',
-    line: {color: '#80CAF6'}
+    line: {color: '#80CAF6',
+           shape: 'spline'}
     }],
     layout, config
   );
@@ -153,7 +165,8 @@ function init_plots(){
     x: weather_data.tss,
     y: weather_data.pm10s,
     mode: 'lines',
-    line: {color: '#80CAF6'}
+    line: {color: '#80CAF6',
+           shape: 'spline'}
     }],
     layout, config
   );
@@ -162,38 +175,36 @@ function init_plots(){
 
 <script>
 function update_plots(){
-  if (weather_update.length > 0){
-    var air_temp_update = {
-      x: [[current_ts]],
-      y: [[current_air_temp]]
-    };
-    Plotly.extendTraces('air_temp_graph', air_temp_update, [0]);
-    var air_pressure_update = {
-      x: [[current_ts]],
-      y: [[current_air_pressure]]
-    };
-    Plotly.extendTraces('air_pressure_graph', air_pressure_update, [0]);
-    var humidity_update = {
-      x: [[current_ts]],
-      y: [[current_humidity]]
-    };
-    Plotly.extendTraces('humidity_graph', humidity_update, [0]);
-    var aqi_update = {
-      x: [[current_ts]],
-      y: [[current_aqi]]
-    };
-    Plotly.extendTraces('aqi_graph', aqi_update, [0]);
-    var pm2_5_update = {
-      x: [[current_ts]],
-      y: [[current_pm2_5]]
-    };
-    Plotly.extendTraces('pm2_5_graph', pm2_5_update, [0]);
-    var pm10_update = {
-      x: [[current_ts]],
-      y: [[current_pm10]]
-    };
-    Plotly.extendTraces('pm10_graph', pm10_update, [0]);
+  var air_temp_update = {
+    x: [[current_ts]],
+    y: [[current_air_temp]]
   };
+  Plotly.extendTraces('air_temp_graph', air_temp_update, [0]);
+  var air_pressure_update = {
+    x: [[current_ts]],
+    y: [[current_air_pressure]]
+  };
+  Plotly.extendTraces('air_pressure_graph', air_pressure_update, [0]);
+  var humidity_update = {
+    x: [[current_ts]],
+    y: [[current_humidity]]
+  };
+  Plotly.extendTraces('humidity_graph', humidity_update, [0]);
+  var aqi_update = {
+    x: [[current_ts]],
+    y: [[current_aqi]]
+  };
+  Plotly.extendTraces('aqi_graph', aqi_update, [0]);
+  var pm2_5_update = {
+    x: [[current_ts]],
+    y: [[current_pm2_5]]
+  };
+  Plotly.extendTraces('pm2_5_graph', pm2_5_update, [0]);
+  var pm10_update = {
+    x: [[current_ts]],
+    y: [[current_pm10]]
+  };
+  Plotly.extendTraces('pm10_graph', pm10_update, [0]);
 };
 </script>
 
@@ -201,7 +212,7 @@ function update_plots(){
 <script src="/socket.io/socket.io.js"></script>
 <script>
 var weather_data = {};
-var weather_update = [];
+var weather_update = {};
 var socket = io.connect('/');
 socket.on('announcements', function(data) {
     console.log('Got announcement:', data.message);
