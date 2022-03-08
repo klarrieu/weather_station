@@ -96,18 +96,20 @@ function movingAverage(array, window){
   if (array.length < window){
     return [];
   }
-  let i = window;
+  let halfw = window / 2;
+  let i = halfw;
   const ma = [];
-      while (++i < array.length + 1){
-        const aslice = array.slice(i - window, i);
+      while (++i < array.length - halfw + 1){
+        const aslice = array.slice(i - halfw, i + halfw);
         const sum = aslice.reduce((prev, curr) => prev + curr, 0);
         ma.push(+ (sum / window).toFixed(2));
       }
 return ma;
-}
+};
 
-function weather_ma(par, window=15){
-  tss_ma = weather_data.tss.slice(window)
+function weather_ma(par, window=30){
+  var halfw = window / 2;
+  tss_ma = weather_data.tss.slice(halfw, weather_data.tss.length - halfw)
   par_ma = movingAverage(weather_data[par], window=window);
   if (par == 'air_temps' & temp_unit == "F") {par_ma = par_ma.map(t => c_to_f(t))};
   return {x: tss_ma,
@@ -115,7 +117,7 @@ function weather_ma(par, window=15){
           name: `${window}-min MA`,
           line: {shape: 'spline'}
          };
-}
+};
 
 function init_plots(){
   var plot_titles = {
@@ -143,19 +145,21 @@ function init_plots(){
     layout, config
   );
   };
-}
+};
 </script>
 
 <script>
 function update_plots(){
   for (let par of pars){
-    var current_ts = weather_data.tss.slice(-1)[0];
-    var current_val = weather_data[par].slice(-1)[0];
-    var current_ma = weather_ma(par)['y'].slice(-1)[0];
+    let current_ts = weather_data.tss.slice(-1)[0];
+    let current_ma = weather_ma(par);
+    let current_ma_ts = current_ma['x'].slice(-1)[0];
+    let current_val = weather_data[par].slice(-1)[0];
+    let current_ma_val = current_ma['y'].slice(-1)[0];
     if (par == 'air_temps' & temp_unit == "F"){current_val = c_to_f(current_val)};
     var plot_update = {
-      x: [[current_ts], [current_ts]],
-      y: [[current_val], [current_ma]]
+      x: [[current_ts], [current_ma_ts]],
+      y: [[current_val], [current_ma_val]]
     };
     Plotly.extendTraces(`${par}_graph`, plot_update, [0, 1]);
   };
