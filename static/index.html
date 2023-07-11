@@ -1,25 +1,23 @@
+<!doctype html>
+<html lang="en">
 <head> 
 	<meta charset="UTF-8">
-  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+	<link rel="stylesheet" href="style.css">
+	<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+	<title>⛅  Sierra Surf Shack Weather Station</title>
+	<link rel='icon' type='image/jpg', href=''>
 </head>
-<title>⛅  Speckled Weather Station</title>
-<link rel='icon' type='image/jpg', href=''>
+
 <body>
 
-
-<h2>⛅  Welcome to the Speckled Weather Station! ⛅</h2>
-<h2>Current Conditions:</h2>
+<h2>⛅ Sierra Surf Shack Weather Station ⛅</h2>
+<h2>Current Conditions</h2>
+<table id="realtimeTable" class="center"></table>
 <button id="button">Change Units</button>
-<h3 id="air_temps_text"></h3>
-<h3 id="air_pressures_text"></h3>
-<h3 id="humidities_text"></h3>
-<h3 id="aqis_text"></h3>
-<h3 id="pm2_5s_text"></h3>
-<h3 id="pm10s_text"></h3>
 <p id="ts_text" style="color:#808080; font-size:14"></p>
 
 <script>
-var temp_unit = "C";
+var temp_unit = "F";
 
 function c_to_f(temp){
   return +(9/5 * temp + 32).toFixed(2);
@@ -41,10 +39,17 @@ const pars = [
   'air_temps',
   'air_pressures',
   'humidities',
-  'aqis',
-  'pm2_5s',
-  'pm10s'
+//  'aqis',
+//  'pm2_5s',
+//  'pm10s'
 ];
+
+// populate table with row for each parameter
+table = document.getElementById("realtimeTable");
+for (let par of pars){
+  var row = table.insertRow();
+  row.id = `${par}_text`
+};
 
 function parse_update(){
   weather_data.tss = weather_data.tss.concat(weather_update.ts);
@@ -67,7 +72,7 @@ function write_text(){
   };
   var par_units = {
     'air_temps': ` °${temp_unit}`,
-    'air_pressures': ' hPa',
+    'air_pressures': ' mbar',
     'humidities': '%',
     'aqis': '',
     'pm2_5s': ' μg/m<sup>3</sup>',
@@ -77,7 +82,7 @@ function write_text(){
   for (let par of pars){
     var current_val = weather_data[par].slice(-1)[0];
     if (par == 'air_temps' & temp_unit == "F"){current_val = c_to_f(current_val)};
-    document.getElementById(`${par}_text`).innerHTML = `${par_names[par]}: ${current_val}${par_units[par]}`;
+    document.getElementById(`${par}_text`).innerHTML = `<td>${par_names[par]}</td> <td>${current_val}${par_units[par]}</td>`;
   };
   var current_ts = weather_data.tss.slice(-1)[0];
   document.getElementById("ts_text").innerHTML = `Last updated: ${current_ts}`;
@@ -122,16 +127,22 @@ function weather_ma(par, window=30){
 function init_plots(){
   var plot_titles = {
     'air_temps': `Air Temperature [°${temp_unit}]`,
-    'air_pressures': 'Air Pressure [hPa]',
+    'air_pressures': 'Air Pressure [mbar]',
     'humidities': 'Relative Humidity [%]',
     'aqis': 'Air Quality Index',
     'pm2_5s': 'PM<sub>2.5</sub> [μg/m<sup>3</sup>]',
     'pm10s': 'PM<sub>10</sub> [μg/m<sup>3</sup>]'
   };
-  var config = {responsive: true};
+  var config = {responsive: true, 
+		displaylogo: false,
+	       };
 
   for (let par of pars){
-  var layout = {title: plot_titles[par]};
+  var layout = {title: plot_titles[par], 
+		paper_bgcolor: "#daedf4", 
+		plot_bgcolor: "#e9f5f8",
+		margin: {b: 60, t: 60},
+	       };
   var y = weather_data[par];
   if (par == 'air_temps' & temp_unit == "F") {y = y.map(t => c_to_f(t))};
   Plotly.newPlot(`${par}_graph`, [{
@@ -139,7 +150,7 @@ function init_plots(){
     y: y,
     mode: 'lines',
     name: 'real time',
-    line: {color: '#80CAF6',
+    line: {color: '#66a1c4',
            shape: 'spline'}
     }, weather_ma(par)],
     layout, config

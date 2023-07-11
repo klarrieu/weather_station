@@ -1,6 +1,7 @@
 const http = require('http');
 const fs = require('fs');
 const sqlite3 = require('sqlite3').verbose();
+const express = require('express');
 
 
 // connect to sqlite database
@@ -83,8 +84,13 @@ function update_data(){
 
 // create http server
 const server = http.createServer((req, res) => {
-  res.writeHead(200, { 'content-type': 'text/html' })
-  fs.createReadStream('index.html').pipe(res)
+  if (req.url == "/"){
+    res.writeHead(200, { 'content-type': 'text/html' })
+    fs.createReadStream('./static/index.html').pipe(res)
+  }else if (req.url == '/style.css'){
+    res.writeHead(200, {'content-type': 'text/css'})
+    fs.createReadStream('./static/style.css').pipe(res)
+  };
 });
 
 // attach websocket to http server

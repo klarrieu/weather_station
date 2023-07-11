@@ -1,0 +1,36 @@
+@charset "UTF-8";
+body {
+  background-color: #bcdfeb;
+}
+h2 {
+  text-align: center;
+}
+p {
+  text-align: center;
+}
+table.center {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  background-color: white;
+  border-collapse: collapse;
+}
+table, th, td {
+  border: 1px solid;
+  padding: 10px
+}
+tr {
+  text-align: right;
+}
+tr:nth-child(even) {background-color: #f2f2f2;}
+tr:nth-child(odd)  {background-color: white}
+tr:hover {background-color: #bfbfbf;}
+button {
+    margin: 0 auto;
+    display: block;
+}
+div {
+  max-width: 900px;
+  margin: 0 auto;
+}

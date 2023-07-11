@@ -13,7 +13,7 @@ def get_cpu_temp():
 # correct bme280 air temperature reading, adjusting for temp of the pi
 def correct_temp(sensor_temp):
   cpu_temp = get_cpu_temp()
-  print(cpu_temp)
+  # print(cpu_temp)
   delta = 0
   if cpu_temp > sensor_temp:
     # correction proportional to difference between cpu_temp and sensor reading
