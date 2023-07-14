@@ -3,6 +3,16 @@ const fs = require('fs');
 const sqlite3 = require('sqlite3').verbose();
 const express = require('express');
 
+// read device configs
+let raw_config = fs.readFileSync('config.json');
+let config = JSON.parse(raw_config);
+var pars = [];
+console.log('Device configs:');
+for (device of config.installed_devices){
+	console.log(device);
+	console.log(config.device_configs[device]);
+	pars = pars.concat(config.device_configs[device].params);
+};
 
 // connect to sqlite database
 let db = new sqlite3.Database('./weather.db', sqlite3.OPEN_READONLY, (err) => {
@@ -13,7 +23,8 @@ let db = new sqlite3.Database('./weather.db', sqlite3.OPEN_READONLY, (err) => {
 });
 
 // get data from database
-var sql = `SELECT * FROM weather WHERE ts >= datetime(CURRENT_TIMESTAMP, 'localtime', '-1 day');`;
+var pars_as = pars.map(par => `${par} as ${par}`).join(', ')
+var sql = `SELECT ts as ts, ${pars_as} FROM weather WHERE ts >= datetime(CURRENT_TIMESTAMP, 'localtime', '-1 day');`;
 
 var tss = [];
 var air_temps = [];
@@ -64,7 +75,7 @@ function update_data(){
     if (Object.keys(update).length > 0){latest_ts = update.ts};
     update = {};
     console.log('checking for update, last ts:', latest_ts);
-    sql_update = `SELECT ts as ts, air_temp as air_temp, air_pressure as air_pressure, humidity as humidity, aqi as aqi, pm2_5 as pm2_5, pm10 as pm10 FROM weather WHERE ts > \'${latest_ts}\';`;
+    sql_update = `SELECT * FROM weather WHERE ts > \'${latest_ts}\';`;
     db.all(sql_update, [], (err, rows) => {
       if (err) {
         throw err;

@@ -33,12 +33,8 @@ while True:
   # get sensor readings
   row = []
   for device in installed_devices:
-    print(device)
     device_reading = locals()[device_configs[device]["getter"]]()
-    print(device_reading)
     row.extend(device_reading)
-  print(readings)
-  print(row)
   readings.append(row)
   # get current time
   t2 = time.time()
@@ -47,10 +43,7 @@ while True:
     # reset clock
     t1 = time.time()
     # get mean values from last 60 seconds
-    print(readings)
     readings = tuple(np.array(readings).mean(axis=0))
-    print('averaging')
-    print(readings)
     # add mean values to database
     add_entry(readings)
     # reset array
