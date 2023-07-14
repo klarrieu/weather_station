@@ -39,7 +39,7 @@ while True:
   # get current time
   t2 = time.time()
   # if we've been reading values for 60 seconds
-  if t2 - t1 >= 6:
+  if t2 - t1 >= 60:
     # reset clock
     t1 = time.time()
     # get mean values from last 60 seconds

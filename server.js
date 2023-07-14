@@ -27,12 +27,16 @@ var pars_as = pars.map(par => `${par} as ${par}`).join(', ')
 var sql = `SELECT ts as ts, ${pars_as} FROM weather WHERE ts >= datetime(CURRENT_TIMESTAMP, 'localtime', '-1 day');`;
 
 var tss = [];
-var air_temps = [];
-var air_pressures = [];
-var humidities = [];
-var aqis = [];
-var pm2_5s = [];
-var pm10s = [];
+//var air_temps = [];
+//var air_pressures = [];
+//var humidities = [];
+//var aqis = [];
+//var pm2_5s = [];
+//var pm10s = [];
+var par_arrays = {};
+for (par of pars){
+  par_arrays[par] = []
+};
 
 var update = {};
 
@@ -41,13 +45,12 @@ var records = [];
 
 function init_data(){
   return new Promise(resolve=>{
-    tss = [];
-    air_temps = [];
-    air_pressures = [];
-    humidities = [];
-    aqis = [];
-    pm2_5s = [];
-    pm10s = [];
+    // re-initialize arrays
+    tss= []
+    for (par of pars){
+      par_arrays[par] = []
+    };
+    // get data from sql db
     db.all(sql, [], (err, rows) => {
       if (err) {
         throw err;
@@ -55,14 +58,17 @@ function init_data(){
       rows.forEach((row) => {
         // console.log(row.ts, row.air_temp, row.air_pressure, row.humidity, row.aqi, row.pm2_5, row.pm10);
         tss.push(row.ts);
-        air_temps.push(row.air_temp);
-        air_pressures.push(row.air_pressure);
-        humidities.push(row.humidity);
-        aqis.push(row.aqi);
-        pm2_5s.push(row.pm2_5);
-        pm10s.push(row.pm10);
+        //air_temps.push(row.air_temp);
+        //air_pressures.push(row.air_pressure);
+        //humidities.push(row.humidity);
+        //aqis.push(row.aqi);
+        //pm2_5s.push(row.pm2_5);
+        //pm10s.push(row.pm10);
+	for (par of pars){
+          par_arrays[par].push(row[par])
+        };
       });
-      resolve(tss, air_temps, air_pressures, humidities, aqis, pm2_5s, pm10s);
+      resolve(tss, par_arrays);
     });
   });
 }
@@ -75,7 +81,7 @@ function update_data(){
     if (Object.keys(update).length > 0){latest_ts = update.ts};
     update = {};
     console.log('checking for update, last ts:', latest_ts);
-    sql_update = `SELECT * FROM weather WHERE ts > \'${latest_ts}\';`;
+    sql_update = `SELECT ts as ts, ${pars_as} FROM weather WHERE ts > \'${latest_ts}\';`;
     db.all(sql_update, [], (err, rows) => {
       if (err) {
         throw err;
@@ -114,12 +120,7 @@ io.on('connection', client => {
   async function asyncInit(){
     records = await init_data();
     client.emit('data', {tss: tss,
-                         air_temps: air_temps,
-                         air_pressures: air_pressures,
-                         humidities: humidities,
-                         aqis: aqis,
-                         pm2_5s: pm2_5s,
-                         pm10s: pm10s
+                         par_arrays
                         });
   };
   asyncInit();

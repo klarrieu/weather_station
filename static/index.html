@@ -53,12 +53,9 @@ for (let par of pars){
 
 function parse_update(){
   weather_data.tss = weather_data.tss.concat(weather_update.ts);
-  weather_data.air_temps = weather_data.air_temps.concat(weather_update.air_temp);
-  weather_data.air_pressures = weather_data.air_pressures.concat(weather_update.air_pressure);
-  weather_data.humidities = weather_data.humidities.concat(weather_update.humidity);
-  weather_data.aqis = weather_data.aqis.concat(weather_update.aqi);
-  weather_data.pm2_5s = weather_data.pm2_5s.concat(weather_update.pm2_5);
-  weather_data.pm10s = weather_data.pm10s.concat(weather_update.pm10);
+  for (par of pars){
+    weather_data[par] = weather_data[par].concat(weather_update[par])
+  };
 };
 
 function write_text(){
