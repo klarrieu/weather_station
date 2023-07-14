@@ -5,7 +5,7 @@ const express = require('express');
 
 
 // connect to sqlite database
-let db = new sqlite3.Database('/home/pi/Documents/weather_station/weather.db', sqlite3.OPEN_READONLY, (err) => {
+let db = new sqlite3.Database('./weather.db', sqlite3.OPEN_READONLY, (err) => {
   if (err) {
     console.error(err.message);
   }
@@ -13,7 +13,7 @@ let db = new sqlite3.Database('/home/pi/Documents/weather_station/weather.db', s
 });
 
 // get data from database
-var sql = `SELECT ts as ts, air_temp as air_temp, air_pressure as air_pressure, humidity as humidity, aqi as aqi, pm2_5 as pm2_5, pm10 as pm10 FROM weather WHERE ts >= datetime(CURRENT_TIMESTAMP, 'localtime', '-1 day');`;
+var sql = `SELECT * FROM weather WHERE ts >= datetime(CURRENT_TIMESTAMP, 'localtime', '-1 day');`;
 
 var tss = [];
 var air_temps = [];

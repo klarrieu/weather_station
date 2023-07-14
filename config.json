@@ -1,0 +1,23 @@
+{
+	"installed_devices": [
+		"bme280",
+		"sps30"
+		],
+	"device_configs": {
+	        "bme280": {
+        	        "getter": "get_bme280_data",
+                	"params": ["air_temp", "air_pressure", "humidity"],
+                	"rounding": [2, 2, 2]
+        	},
+        	"sds011": {
+                	"getter": "get_sds011_data",
+                	"params": ["aqi", "pm2_5", "pm10"],
+                	"rounding": [2, 2, 2]
+        	},
+        	"sps30": {
+                	"getter": "get_sps30_data",
+                	"params": ["aqi", "pm1", "pm2_5", "pm4", "pm10", "mean_size"],
+                	"rounding": [2, 2, 2, 2, 2, 2]
+        	}
+	}
+}

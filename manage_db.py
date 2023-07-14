@@ -1,10 +1,16 @@
 import sqlite3
+from read_config import read_config
+
+
+installed_devices, device_configs = read_config()
+pars = tuple(par for device in installed_devices for par in device_configs[device]["params"])
 
 
 db_path = '/home/pi/Documents/weather_station/weather.db'
 
 bme280_pars = ("AIR_TEMP", "AIR_PRESSURE", "HUMIDITY")
 sds011_pars = ("AQI", "PM2_5", "PM10")
+sps30_pars =  ("AQI", "PM1", "PM2_5", "PM4", "PM10", "MEAN_SIZE")
 
 def setup_db():
 	conn = sqlite3.connect(db_path)
@@ -14,16 +20,14 @@ def setup_db():
 	if c.fetchone() is None:
 		# table does not exist, need to create it
 		print('Weather data table does not exist yet, creating...')
+		par_roundings = [rounding for device in installed_devices for rounding in device_configs[device]["rounding"]]
+		table_pars = [f"{par} DECIMAL(6, {rounding})" for par, rounding in zip(pars, par_roundings)]
 		create_table = f'''CREATE TABLE weather(
 				   ID INTEGER NOT NULL PRIMARY KEY,
 				   TS TIMESTAMP NOT NULL DEFAULT (datetime('now', 'localtime')),
-				   AIR_TEMP DECIMAL(6,2),
-				   AIR_PRESSURE DECIMAL(6,2),
-			  	   HUMIDITY DECIMAL(6,2),
-				   AQI DECIMAL(6,2),
-				   PM2_5 DECIMAL(6,2),
-				   PM10 DECIMAL(6,2)
+				   {", ".join(table_pars)}
 				   );'''
+		print(create_table)
 		c.execute(create_table)
 		conn.commit()
 		conn.close()
@@ -31,17 +35,12 @@ def setup_db():
 		print('Found weather data table.')
 
 
-def add_entry(bme280_vals=None, sds011_vals=None):
+def add_entry(values):
 	conn = sqlite3.connect(db_path)
 	c = conn.cursor()
-	# tuple of column names for parameters we have
-	pars = ((bme280_pars if bme280_vals else ()) +
-	       (sds011_pars if sds011_vals else ()))
-	# tuple of corresponding values for this entry
-	values = ((bme280_vals if bme280_vals else ()) +
-		 (sds011_vals if sds011_vals else ()))
 	insert_call = f'''INSERT INTO weather {pars}
 			  VALUES {values};'''
+	print(insert_call)
 	c.execute(insert_call)
 	conn.commit()
 	conn.close()

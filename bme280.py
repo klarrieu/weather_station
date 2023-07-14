@@ -6,6 +6,7 @@
 # https://www.controleverything.com/content/Humidity?sku=BME280_I2CS#tabs-0-product_tabset-2
 import smbus
 import time
+from correct_temp import correct_temp
 
 # Get I2C bus
 bus = smbus.SMBus(1)
@@ -248,6 +249,8 @@ def get_bme280_data():
 	bme280.read_data()
 	data = bme280.result_calculation()
 	air_temp, air_pressure, humidity = round(data['c'], 2), round(data['p'], 2), round(data['h'], 2)
+	# correct temp accounting for heat from Pi CPU
+	air_temp = correct_temp(air_temp)
 	return air_temp, air_pressure, humidity
 
 
