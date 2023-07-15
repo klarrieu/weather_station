@@ -35,6 +35,7 @@ button.addEventListener("click", function(){change_units();});
 </script>
 
 <script>
+// edit this to get pars automatically from weather_data columns
 const pars = [
   'air_temp',
   'air_pressure',
@@ -164,7 +165,7 @@ function update_plots(){
     let current_ma_ts = current_ma['x'].slice(-1)[0];
     let current_val = weather_data[par].slice(-1)[0];
     let current_ma_val = current_ma['y'].slice(-1)[0];
-    if (par == 'air_temps' & temp_unit == "F"){current_val = c_to_f(current_val)};
+    if (par == 'air_temp' & temp_unit == "F"){current_val = c_to_f(current_val)};
     var plot_update = {
       x: [[current_ts], [current_ma_ts]],
       y: [[current_val], [current_ma_val]]
