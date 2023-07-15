@@ -53,6 +53,25 @@ const graph_pars = [
   'aqi'
 ];
 
+const par_names = {
+  'air_temp': '🌡️T',
+  'air_pressure': '🌪️p',
+  'humidity': '🌫️RH',
+  'aqi': '💨AQI',
+  'pm2_5': '💨PM<sub>2.5</sub>',
+  'pm10': '💨PM<sub>10</sub>',
+  'mean_size': 'd<sub>mean</sub>'
+};
+var par_units = {
+  'air_temp': ` °${temp_unit}`,
+  'air_pressure': ' mbar',
+  'humidity': '%',
+  'aqi': '',
+  'pm2_5': ' μg/m<sup>3</sup>',
+  'pm10': ' μg/m<sup>3</sup>',
+  'mean_size': ' μm'
+};
+
 // populate table with row for each parameter
 table = document.getElementById("realtimeTable");
 for (let par of pars){
@@ -68,23 +87,6 @@ function parse_update(){
 };
 
 function write_text(){
-  const par_names = {
-    'air_temp': '🌡️T',
-    'air_pressure': '🌪️p',
-    'humidity': '🌫️RH',
-    'aqi': '💨AQI',
-    'pm2_5': '💨PM<sub>2.5</sub>',
-    'pm10': '💨PM<sub>10</sub>'
-  };
-  var par_units = {
-    'air_temp': ` °${temp_unit}`,
-    'air_pressure': ' mbar',
-    'humidity': '%',
-    'aqi': '',
-    'pm2_5': ' μg/m<sup>3</sup>',
-    'pm10': ' μg/m<sup>3</sup>'
-  };
-
   for (let par of pars){
     var current_val = weather_data[par].slice(-1)[0];
     if (par == 'air_temp' & temp_unit == "F"){current_val = c_to_f(current_val)};
