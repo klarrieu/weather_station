@@ -35,14 +35,22 @@ button.addEventListener("click", function(){change_units();});
 </script>
 
 <script>
-// edit this to get pars automatically from weather_data columns
+// edit this to get pars automatically from weather_data columns?
 const pars = [
   'air_temp',
   'air_pressure',
   'humidity',
   'aqi',
   'pm2_5',
-  'pm10'
+  'pm10',
+  'mean_size'
+];
+
+const graph_pars = [
+  'air_temp',
+  'air_pressure',
+  'humidity',
+  'aqi'
 ];
 
 // populate table with row for each parameter
@@ -85,16 +93,16 @@ function write_text(){
   var current_ts = weather_data.tss.slice(-1)[0];
   document.getElementById("ts_text").innerHTML = `Last updated: ${current_ts}`;
 };
+
+for (par of pars){
+  d = document.createElement("div");
+  d.setAttribute("id", `${par}_graph`)
+  document.body.appendChild(d)
+};
 </script>
 
-<div id="air_temp_graph"></div>
-<div id="air_pressure_graph"></div>
-<div id="humidity_graph"></div>
-<div id="aqi_graph"></div>
-<div id="pm2_5_graph"></div>
-<div id="pm10_graph"></div>
-
 <script>
+// plotting script element
 function movingAverage(array, window){
   if (array.length < window){
     return [];
@@ -135,7 +143,7 @@ function init_plots(){
 		displaylogo: false,
 	       };
 
-  for (let par of pars){
+  for (let par of graph_pars){
   var layout = {title: plot_titles[par], 
 		paper_bgcolor: "#daedf4", 
 		plot_bgcolor: "#e9f5f8",
@@ -155,11 +163,9 @@ function init_plots(){
   );
   };
 };
-</script>
 
-<script>
 function update_plots(){
-  for (let par of pars){
+  for (let par of graph_pars){
     let current_ts = weather_data.tss.slice(-1)[0];
     let current_ma = weather_ma(par);
     let current_ma_ts = current_ma['x'].slice(-1)[0];
