@@ -36,12 +36,12 @@ button.addEventListener("click", function(){change_units();});
 
 <script>
 const pars = [
-  'air_temps',
-  'air_pressures',
-  'humidities',
-//  'aqis',
-//  'pm2_5s',
-//  'pm10s'
+  'air_temp',
+  'air_pressure',
+  'humidity',
+  'aqi',
+  'pm2_5',
+  'pm10'
 ];
 
 // populate table with row for each parameter
@@ -60,25 +60,25 @@ function parse_update(){
 
 function write_text(){
   const par_names = {
-    'air_temps': '🌡️T',
-    'air_pressures': '🌪️p',
-    'humidities': '🌫️RH',
-    'aqis': '💨AQI',
-    'pm2_5s': '💨PM<sub>2.5</sub>',
-    'pm10s': '💨PM<sub>10</sub>'
+    'air_temp': '🌡️T',
+    'air_pressure': '🌪️p',
+    'humidity': '🌫️RH',
+    'aqi': '💨AQI',
+    'pm2_5': '💨PM<sub>2.5</sub>',
+    'pm10': '💨PM<sub>10</sub>'
   };
   var par_units = {
-    'air_temps': ` °${temp_unit}`,
-    'air_pressures': ' mbar',
-    'humidities': '%',
-    'aqis': '',
-    'pm2_5s': ' μg/m<sup>3</sup>',
-    'pm10s': ' μg/m<sup>3</sup>'
+    'air_temp': ` °${temp_unit}`,
+    'air_pressure': ' mbar',
+    'humidity': '%',
+    'aqi': '',
+    'pm2_5': ' μg/m<sup>3</sup>',
+    'pm10': ' μg/m<sup>3</sup>'
   };
 
   for (let par of pars){
     var current_val = weather_data[par].slice(-1)[0];
-    if (par == 'air_temps' & temp_unit == "F"){current_val = c_to_f(current_val)};
+    if (par == 'air_temp' & temp_unit == "F"){current_val = c_to_f(current_val)};
     document.getElementById(`${par}_text`).innerHTML = `<td>${par_names[par]}</td> <td>${current_val}${par_units[par]}</td>`;
   };
   var current_ts = weather_data.tss.slice(-1)[0];
@@ -86,12 +86,12 @@ function write_text(){
 };
 </script>
 
-<div id="air_temps_graph"></div>
-<div id="air_pressures_graph"></div>
-<div id="humidities_graph"></div>
-<div id="aqis_graph"></div>
-<div id="pm2_5s_graph"></div>
-<div id="pm10s_graph"></div>
+<div id="air_temp_graph"></div>
+<div id="air_pressure_graph"></div>
+<div id="humidity_graph"></div>
+<div id="aqi_graph"></div>
+<div id="pm2_5_graph"></div>
+<div id="pm10_graph"></div>
 
 <script>
 function movingAverage(array, window){
@@ -113,7 +113,7 @@ function weather_ma(par, window=30){
   var halfw = window / 2;
   tss_ma = weather_data.tss.slice(halfw, weather_data.tss.length - halfw)
   par_ma = movingAverage(weather_data[par], window=window);
-  if (par == 'air_temps' & temp_unit == "F") {par_ma = par_ma.map(t => c_to_f(t))};
+  if (par == 'air_temp' & temp_unit == "F") {par_ma = par_ma.map(t => c_to_f(t))};
   return {x: tss_ma,
           y: par_ma,
           name: `${window}-min MA`,
@@ -123,12 +123,12 @@ function weather_ma(par, window=30){
 
 function init_plots(){
   var plot_titles = {
-    'air_temps': `Air Temperature [°${temp_unit}]`,
-    'air_pressures': 'Air Pressure [mbar]',
-    'humidities': 'Relative Humidity [%]',
-    'aqis': 'Air Quality Index',
-    'pm2_5s': 'PM<sub>2.5</sub> [μg/m<sup>3</sup>]',
-    'pm10s': 'PM<sub>10</sub> [μg/m<sup>3</sup>]'
+    'air_temp': `Air Temperature [°${temp_unit}]`,
+    'air_pressure': 'Air Pressure [mbar]',
+    'humidity': 'Relative Humidity [%]',
+    'aqi': 'Air Quality Index',
+    'pm2_5': 'PM<sub>2.5</sub> [μg/m<sup>3</sup>]',
+    'pm10': 'PM<sub>10</sub> [μg/m<sup>3</sup>]'
   };
   var config = {responsive: true, 
 		displaylogo: false,
@@ -141,7 +141,7 @@ function init_plots(){
 		margin: {b: 60, t: 60},
 	       };
   var y = weather_data[par];
-  if (par == 'air_temps' & temp_unit == "F") {y = y.map(t => c_to_f(t))};
+  if (par == 'air_temp' & temp_unit == "F") {y = y.map(t => c_to_f(t))};
   Plotly.newPlot(`${par}_graph`, [{
     x: weather_data.tss,
     y: y,

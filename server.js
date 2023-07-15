@@ -119,9 +119,7 @@ io.on('connection', client => {
   // send database data to webpage via websocket
   async function asyncInit(){
     records = await init_data();
-    client.emit('data', {tss: tss,
-                         par_arrays
-                        });
+    client.emit('data', Object.assign({}, {tss: tss}, par_arrays));
   };
   asyncInit();
 
