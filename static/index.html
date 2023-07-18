@@ -26,7 +26,7 @@ function c_to_f(temp){
 function change_units(){
   if (temp_unit == "C"){temp_unit = "F"}
   else{temp_unit = "C"};
-  par_units["air_temp"] = temp_unit;
+  par_units["air_temp"] = ` °${temp_unit}`;
   write_text();
   init_plots();
 };
