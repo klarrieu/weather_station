@@ -102,11 +102,25 @@ function update_data(){
 // create http server
 const server = http.createServer((req, res) => {
   if (req.url == "/"){
-    res.writeHead(200, { 'content-type': 'text/html' })
+    res.writeHead(200, { 'content-type': 'text/html' });
     fs.createReadStream('./static/index.html').pipe(res)
-  }else if (req.url == '/style.css'){
-    res.writeHead(200, {'content-type': 'text/css'})
+  }
+  else if (req.url == '/style.css'){
+    res.writeHead(200, {'content-type': 'text/css'});
     fs.createReadStream('./static/style.css').pipe(res)
+  }
+  else if ((req.url == '/weather-update/') & (req.method == 'POST')){
+    console.log('Heard POST request:');
+    req.on('data', function (data) {
+      console.log("got data:");
+      var data = JSON.parse(data);
+      console.log(data);
+    });
+    // var post = JSON.parse(body);
+    // deal_with_post_data(request,post);
+    // console.log(post);
+    res.writeHead(200, {'content-type': 'text/html'});
+    res.end();
   };
 });
 
